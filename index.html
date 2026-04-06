@@ -122,15 +122,14 @@ var inUseSet=new Set(),map,geocoder,myMarker,activePopWindow,markers=[],lastData
 var mapReady=false;
 
 function apiGet(p){return fetch(API_URL+'?'+new URLSearchParams(p)).then(function(r){return r.json();});}
-function apiPost(b){return fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(function(r){return r.json();});}
 function gc(a){var s=String(a||'');for(var k in AC){if(s.includes(k))return AC[k];}return'#dc2626';}
 function gk(a){var s=String(a||'');for(var k in AC){if(s.includes(k))return k;}return null;}
 var tt;
 function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show');},2800);}
 function setLoading(on){document.getElementById('loadingOverlay').classList.toggle('on',on);}
 function loadInUse(cb){apiGet({action:'getInUse'}).then(function(l){inUseSet=new Set((l||[]).map(function(h){return h.name;}));if(cb)cb();}).catch(function(){if(cb)cb();});}
-function handleUseBtn(n){showToast('처리 중...');apiPost({action:'setInUse',name:n}).then(function(){inUseSet.add(n);showToast('🔴 '+n+' 사용 시작!');if(activePopWindow)activePopWindow.close();refresh();}).catch(function(){showToast('처리 실패.');});}
-function handleClearBtn(n){apiPost({action:'clearInUse',name:n}).then(function(){inUseSet.delete(n);showToast('✅ '+n+' 사용 해제!');if(activePopWindow)activePopWindow.close();refresh();}).catch(function(){showToast('처리 실패.');});}
+function handleUseBtn(n){showToast('처리 중...');apiGet({action:'setInUse',name:n}).then(function(){inUseSet.add(n);showToast('🔴 '+n+' 사용 시작!');if(activePopWindow)activePopWindow.close();refresh();}).catch(function(){showToast('처리 실패.');});}
+function handleClearBtn(n){apiGet({action:'clearInUse',name:n}).then(function(){inUseSet.delete(n);showToast('✅ '+n+' 사용 해제!');if(activePopWindow)activePopWindow.close();refresh();}).catch(function(){showToast('처리 실패.');});}
 function refresh(){if(!lastData)return;loadInUse(function(){if(lastType==='name')drawByName(lastData);else draw(lastData);});}
 function mkSVG(color,k,inUse){
   var c=inUse?'%23bdbdbd':color.replace('#','%23');
@@ -260,7 +259,7 @@ function showMapError(){
 </script>
 
 <!-- ★★★ 카카오맵 SDK ★★★ -->
-<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=692bfacbcd43d90af833b697bbb66212&libraries=services&autoload=false"
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=716653ab472c2fadb371601567324b44&libraries=services&autoload=false"
   onerror="showMapError()"></script>
 <script>
   if(typeof kakao!=='undefined'&&kakao.maps){
