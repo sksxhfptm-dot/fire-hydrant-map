@@ -7,39 +7,24 @@
   <meta name="apple-mobile-web-app-title" content="소방용수">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>인천중부소방서 소방용수 위치도</title>
-
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
   <style>
     :root {
-      --fire-red: #d32f2f;
-      --fire-dark: #8e0000;
-      --bg-light: #f0f2f5;
-      --surface: #ffffff;
-      --border-color: #e2e5e9;
-      --text: #1a1d21;
+      --fire-red: #d32f2f; --fire-dark: #8e0000; --bg-light: #f0f2f5;
+      --surface: #ffffff; --border-color: #e2e5e9; --text: #1a1d21;
       --text-sub: #6b7280;
       --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
       --card-shadow-hover: 0 4px 12px rgba(0,0,0,0.1);
-      --radius: 14px;
-      --radius-sm: 10px;
+      --radius: 14px; --radius-sm: 10px;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
     html, body { background: var(--bg-light); color: var(--text); width: 100%; height: 100%; font-family: 'Noto Sans KR', sans-serif; }
-
-    header {
-      background: linear-gradient(135deg, #c62828 0%, #d32f2f 50%, #e53935 100%);
-      color: #fff; padding: 0 20px; height: 60px;
-      display: flex; align-items: center; gap: 12px;
-      position: sticky; top: 0; z-index: 2000;
-      box-shadow: 0 4px 20px rgba(211,47,47,0.3);
-    }
+    header { background: linear-gradient(135deg, #c62828 0%, #d32f2f 50%, #e53935 100%); color: #fff; padding: 0 20px; height: 60px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 2000; box-shadow: 0 4px 20px rgba(211,47,47,0.3); }
     .header-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
     .header-icon .material-icons { font-size: 20px; }
     header h1 { font-size: 17px; font-weight: 900; line-height: 1.2; letter-spacing: -0.3px; }
     header h1 small { display: block; font-size: 11px; font-weight: 400; opacity: 0.8; margin-top: 2px; }
-
     .search-panel { background: var(--surface); padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; }
     .tab-bar { display: flex; gap: 4px; background: var(--bg-light); border-radius: var(--radius-sm); padding: 3px; }
     .tab-btn { flex: 1; height: 36px; border-radius: 8px; border: none; font-size: 13px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; transition: all 0.2s; }
@@ -53,25 +38,20 @@
     .btn-gps { height: 48px; border: none; border-radius: var(--radius-sm); background: linear-gradient(135deg, #1565c0, #1976d2); color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; width: 100%; box-shadow: 0 2px 8px rgba(21,101,192,0.3); transition: all 0.15s; }
     .btn-gps:active { transform: scale(0.98); }
     .btn-gps .material-icons { font-size: 20px; }
-
     .map-wrapper { position: relative; height: 45vh; min-height: 260px; margin: 12px 16px; border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--border-color); box-shadow: var(--card-shadow); }
     #map { width: 100%; height: 100%; }
-    .btn-reload { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 1000; background: var(--surface); color: var(--fire-red); border: 2px solid var(--fire-red); padding: 8px 18px; border-radius: 24px; font-size: 13px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; display: none; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.12); transition: all 0.15s; }
-    .btn-reload:active { transform: translateX(-50%) scale(0.95); }
-
+    .btn-reload { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 1000; background: var(--surface); color: var(--fire-red); border: 2px solid var(--fire-red); padding: 8px 18px; border-radius: 24px; font-size: 13px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; display: none; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
     .loading-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; flex-direction: column; gap: 12px; z-index: 500; }
     .loading-overlay.on { display: flex; }
     .spinner { width: 36px; height: 36px; border-radius: 50%; border: 3px solid var(--border-color); border-top-color: var(--fire-red); animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-overlay p { font-size: 13px; color: var(--text-sub); font-weight: 500; }
-
     .result-wrap { padding: 0 16px 40px; }
     .result-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 0 8px; font-size: 13px; color: var(--text-sub); }
     .result-header strong { color: var(--fire-red); font-size: 16px; font-weight: 900; }
     .legend { display: flex; flex-wrap: wrap; gap: 6px; padding-bottom: 12px; }
     .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-sub); font-weight: 500; background: var(--surface); padding: 4px 10px 4px 6px; border-radius: 20px; border: 1px solid var(--border-color); }
     .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-
     .hydrant-card { background: var(--surface); border: 1.5px solid var(--border-color); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: flex-start; gap: 12px; transition: all 0.2s; box-shadow: var(--card-shadow); }
     .hydrant-card:active { border-color: var(--fire-red); box-shadow: var(--card-shadow-hover); transform: scale(0.99); }
     .h-icon-wrap { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -83,21 +63,18 @@
     .h-dist { font-size: 13px; font-weight: 700; flex-shrink: 0; padding: 5px 10px; border-radius: var(--radius-sm); background: #ffebee; color: var(--fire-red); }
     .empty-state { text-align: center; padding: 48px 20px; color: var(--text-sub); font-size: 14px; line-height: 1.9; }
     .empty-state .material-icons { font-size: 48px; color: #d0d5dd; display: block; margin-bottom: 12px; }
-
     .pop-window { padding: 12px 14px; min-width: 220px; max-width: 270px; font-family: 'Noto Sans KR', sans-serif; }
     .pop-header { font-size: 14px; font-weight: 700; color: var(--fire-red); margin-bottom: 8px; border-bottom: 2px solid #ffcdd2; padding-bottom: 6px; display: flex; align-items: center; gap: 6px; }
     .pop-body { font-size: 12px; color: var(--text); line-height: 1.8; }
     .pop-body b { color: var(--text-sub); font-weight: 500; }
     .pop-nav-btn { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 10px; padding: 9px 0; width: 100%; background: linear-gradient(135deg, #c62828, #d32f2f); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 12px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; text-decoration: none; box-shadow: 0 2px 6px rgba(211,47,47,0.3); }
-
     .in-use-badge { display: inline-flex; align-items: center; gap: 4px; background: #fff3e0; color: #e65100; border: 1.5px solid #ffb74d; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; animation: blink-badge 1.5s ease-in-out infinite; }
     @keyframes blink-badge { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     .pop-use-btn { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 8px; padding: 9px 0; width: 100%; border: none; border-radius: var(--radius-sm); font-size: 12px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; transition: all 0.15s; }
     .pop-use-btn.use { background: linear-gradient(135deg, #e65100, #f57c00); color: #fff; box-shadow: 0 2px 6px rgba(230,81,0,0.3); }
     .pop-use-btn.clear { background: linear-gradient(135deg, #2e7d32, #43a047); color: #fff; box-shadow: 0 2px 6px rgba(46,125,50,0.3); }
     .pop-use-btn:active { transform: scale(0.97); }
-
-    .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1a1d21; color: #fff; font-size: 13px; font-weight: 500; padding: 12px 24px; border-radius: 28px; z-index: 9999; white-space: nowrap; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-family: 'Noto Sans KR', sans-serif; box-shadow: 0 8px 32px rgba(0,0,0,0.25); pointer-events: none; }
+    .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1a1d21; color: #fff; font-size: 13px; font-weight: 500; padding: 12px 24px; border-radius: 28px; z-index: 9999; white-space: nowrap; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); font-family: 'Noto Sans KR', sans-serif; box-shadow: 0 8px 32px rgba(0,0,0,0.25); pointer-events: none; }
     .toast.show { transform: translateX(-50%) translateY(0); }
   </style>
 </head>
@@ -154,80 +131,71 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- ★ 카카오맵: autoload=false 로 먼저 선언 -->
-<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=716653ab472c2fadb371601567324b44&libraries=services&autoload=false"></script>
-
 <script>
-  // ★★★ Apps Script 배포 URL ★★★
-  const API_URL = 'https://script.google.com/macros/s/AKfycby3tISpouySVhMorJLrZTjlfLrcBJi0AVqZhS2N1B0QPTYzCyv2YXuX-qCjoj9W81Xl/exec';
+  // ★ Apps Script 배포 URL
+  var API_URL = 'https://script.google.com/macros/s/AKfycby3tISpouySVhMorJLrZTjlfLrcBJi0AVqZhS2N1B0QPTYzCyv2YXuX-qCjoj9W81Xl/exec';
 
-  const AREA_COLORS = {
-    '101': '#2563eb', '102': '#dc2626', '103': '#16a34a', '104': '#9333ea',
-    '105': '#ea580c', '106': '#0891b2', '107': '#db2777', '108': '#6b7280'
+  var AREA_COLORS = {
+    '101':'#2563eb','102':'#dc2626','103':'#16a34a','104':'#9333ea',
+    '105':'#ea580c','106':'#0891b2','107':'#db2777','108':'#6b7280'
   };
-  const AREA_NAMES = {
-    '101': '1구역', '102': '2구역', '103': '3구역', '104': '4구역',
-    '105': '5구역', '106': '6구역', '107': '7구역', '108': '8구역'
+  var AREA_NAMES = {
+    '101':'1구역','102':'2구역','103':'3구역','104':'4구역',
+    '105':'5구역','106':'6구역','107':'7구역','108':'8구역'
   };
 
-  let inUseSet = new Set();
-  let map, geocoder, myMarker, activePopWindow, markers = [];
-  let lastSearchData = null, lastSearchType = null;
+  var inUseSet = new Set();
+  var map, geocoder, myMarker, activePopWindow, markers = [];
+  var lastSearchData = null, lastSearchType = null;
 
   // ── API 헬퍼 ──
   function apiGet(params) {
-    const url = API_URL + '?' + new URLSearchParams(params).toString();
-    return fetch(url).then(function(r) { return r.json(); });
+    var url = API_URL + '?' + new URLSearchParams(params).toString();
+    return fetch(url).then(function(r){ return r.json(); });
   }
   function apiPost(body) {
     return fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify(body)
-    }).then(function(r) { return r.json(); });
+    }).then(function(r){ return r.json(); });
   }
 
-  // ── 카카오맵 로드 완료 후 실행 ──
-  // autoload=false 이므로 kakao.maps.load() 로 수동 초기화
-  document.addEventListener('DOMContentLoaded', function() {
-    kakao.maps.load(function() {
-      map = new kakao.maps.Map(document.getElementById('map'), {
-        center: new kakao.maps.LatLng(37.473, 126.632),
-        level: 3
-      });
-      geocoder = new kakao.maps.services.Geocoder();
-      activePopWindow = new kakao.maps.InfoWindow({ removable: true });
-
-      kakao.maps.event.addListener(map, 'dragend', function() {
-        document.getElementById('btnReload').style.display = 'flex';
-      });
-      kakao.maps.event.addListener(map, 'click', function() {
-        if (activePopWindow) activePopWindow.close();
-      });
-      kakao.maps.event.addListener(map, 'zoom_start', function() {
-        if (activePopWindow) activePopWindow.close();
-      });
-
-      // 엔터키 검색
-      document.getElementById('searchAddr').addEventListener('keyup', function(e) { if (e.key === 'Enter') searchAddress(); });
-      document.getElementById('searchName').addEventListener('keyup', function(e) { if (e.key === 'Enter') searchByName(); });
-
-      loadInUseStatus();
+  // ── 카카오맵 초기화 (카카오 SDK가 로드되면 자동 호출) ──
+  function initMap() {
+    map = new kakao.maps.Map(document.getElementById('map'), {
+      center: new kakao.maps.LatLng(37.473, 126.632),
+      level: 3
     });
-  });
+    geocoder = new kakao.maps.services.Geocoder();
+    activePopWindow = new kakao.maps.InfoWindow({ removable: true });
+
+    kakao.maps.event.addListener(map, 'dragend', function() {
+      document.getElementById('btnReload').style.display = 'flex';
+    });
+    kakao.maps.event.addListener(map, 'click', function() {
+      if (activePopWindow) activePopWindow.close();
+    });
+    kakao.maps.event.addListener(map, 'zoom_start', function() {
+      if (activePopWindow) activePopWindow.close();
+    });
+
+    document.getElementById('searchAddr').addEventListener('keyup', function(e){ if(e.key==='Enter') searchAddress(); });
+    document.getElementById('searchName').addEventListener('keyup', function(e){ if(e.key==='Enter') searchByName(); });
+
+    loadInUseStatus();
+  }
 
   // ── SVG 마커 ──
   function makeHydrantSVG(color, areaKey, isInUse) {
-    const safeColor = isInUse ? '%23bdbdbd' : color.replace('#', '%23');
-    const areaNum = AREA_NAMES[areaKey] ? AREA_NAMES[areaKey].replace('구역','') : '';
+    var safeColor = isInUse ? '%23bdbdbd' : color.replace('#','%23');
+    var areaNum = AREA_NAMES[areaKey] ? AREA_NAMES[areaKey].replace('구역','') : '';
     return 'data:image/svg+xml;utf8,' +
       '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="44" viewBox="0 0 36 44">' +
-      '<defs><filter id="s' + areaKey + '" x="-20%25" y="-10%25" width="140%25" height="140%25">' +
-      '<feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.25"/></filter></defs>' +
-      '<path d="M18 0C8.06 0 0 8.06 0 18c0 13.5 18 26 18 26s18-12.5 18-26C36 8.06 27.94 0 18 0z" fill="' + safeColor + '" filter="url(%23s' + areaKey + ')"/>' +
+      '<path d="M18 0C8.06 0 0 8.06 0 18c0 13.5 18 26 18 26s18-12.5 18-26C36 8.06 27.94 0 18 0z" fill="' + safeColor + '"/>' +
       '<circle cx="18" cy="17" r="11" fill="white" opacity="0.95"/>' +
       (isInUse
-        ? '<text x="18" y="20" text-anchor="middle" font-size="11" fill="%23e65100">&#9888;</text>'
+        ? '<text x="18" y="21" text-anchor="middle" font-size="13" fill="%23e65100">!</text>'
         : '<text x="18" y="14" text-anchor="middle" font-size="7" font-weight="700" fill="' + safeColor + '" font-family="sans-serif">' + areaNum + '</text>' +
           '<path d="M15 16 L18 22 L21 16 Q18 18 15 16Z" fill="' + safeColor + '" opacity="0.9"/>'
       ) + '</svg>';
@@ -236,98 +204,93 @@
   function makeFireTruckSVG() {
     return 'data:image/svg+xml;utf8,' +
       '<svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 52 52">' +
-      '<circle cx="26" cy="26" r="25" fill="%23dc2626" opacity="0.15">' +
-      '<animate attributeName="r" values="18;25;18" dur="2s" repeatCount="indefinite"/>' +
-      '<animate attributeName="opacity" values="0.3;0.08;0.3" dur="2s" repeatCount="indefinite"/></circle>' +
       '<circle cx="26" cy="26" r="18" fill="white" stroke="%23dc2626" stroke-width="2.5"/>' +
       '<rect x="13" y="20" width="20" height="11" rx="2" fill="%23dc2626"/>' +
       '<rect x="33" y="23" width="7" height="8" rx="1.5" fill="%23ef4444"/>' +
       '<rect x="34" y="24.5" width="4.5" height="4" rx="1" fill="%23bfdbfe" opacity="0.9"/>' +
-      '<rect x="15" y="18.5" width="14" height="2" rx="0.5" fill="%23fbbf24"/>' +
-      '<rect x="16" y="17.5" width="1" height="3" rx="0.3" fill="%23f59e0b"/>' +
-      '<rect x="20" y="17.5" width="1" height="3" rx="0.3" fill="%23f59e0b"/>' +
-      '<rect x="24" y="17.5" width="1" height="3" rx="0.3" fill="%23f59e0b"/>' +
-      '<rect x="28" y="17.5" width="1" height="3" rx="0.3" fill="%23f59e0b"/>' +
       '<circle cx="19" cy="32" r="3" fill="%23374151"/><circle cx="19" cy="32" r="1.3" fill="%239ca3af"/>' +
       '<circle cx="35" cy="32" r="3" fill="%23374151"/><circle cx="35" cy="32" r="1.3" fill="%239ca3af"/>' +
-      '<rect x="15" y="18" width="4" height="2.5" rx="1" fill="%23f87171">' +
-      '<animate attributeName="opacity" values="1;0.3;1" dur="0.8s" repeatCount="indefinite"/></rect>' +
-      '<rect x="20" y="18" width="4" height="2.5" rx="1" fill="%233b82f6">' +
-      '<animate attributeName="opacity" values="0.3;1;0.3" dur="0.8s" repeatCount="indefinite"/></rect>' +
       '</svg>';
   }
 
   function makeHydrantIconHTML(color, areaKey, isInUse) {
-    const num = AREA_NAMES[areaKey] ? AREA_NAMES[areaKey].replace('구역','') : '?';
-    const iconColor = isInUse ? '#bdbdbd' : color;
-    return '<div class="h-icon-wrap" style="background:' + iconColor + '15;">' +
+    var num = AREA_NAMES[areaKey] ? AREA_NAMES[areaKey].replace('구역','') : '?';
+    var iconColor = isInUse ? '#bdbdbd' : color;
+    return '<div class="h-icon-wrap" style="background:' + iconColor + '20;">' +
       '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
       '<path d="M12 2C8 2 6 5 6 8c0 2 1 3.5 2 4.5V14h1v3h2v2h2v-2h2v-3h1v-1.5c1-1 2-2.5 2-4.5 0-3-2-6-6-6z" fill="' + iconColor + '" opacity="0.85"/>' +
       '<circle cx="12" cy="8" r="2.5" fill="white" opacity="0.9"/>' +
-      '<text x="12" y="9.5" text-anchor="middle" font-size="4" font-weight="bold" fill="' + iconColor + '">' + (isInUse ? '!' : num) + '</text>' +
       '</svg></div>';
   }
 
   function getAreaColor(areaStr) {
-    const s = String(areaStr || '');
-    for (const [key, color] of Object.entries(AREA_COLORS)) { if (s.includes(key)) return color; }
+    var s = String(areaStr||'');
+    for (var key in AREA_COLORS) { if (s.includes(key)) return AREA_COLORS[key]; }
     return '#dc2626';
   }
   function getAreaKey(areaStr) {
-    const s = String(areaStr || '');
-    for (const key of Object.keys(AREA_COLORS)) { if (s.includes(key)) return key; }
+    var s = String(areaStr||'');
+    for (var key in AREA_COLORS) { if (s.includes(key)) return key; }
     return null;
   }
 
-  // ── 사용중 상태 ──
+  function setLoading(on) { document.getElementById('loadingOverlay').classList.toggle('on', on); }
+
+  var toastTimer;
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2800);
+  }
+
   function loadInUseStatus(callback) {
-    apiGet({ action: 'getInUse' })
-      .then(function(list) {
-        inUseSet = new Set((list || []).map(function(h) { return h.name; }));
+    apiGet({action:'getInUse'})
+      .then(function(list){
+        inUseSet = new Set((list||[]).map(function(h){ return h.name; }));
         if (callback) callback();
       })
-      .catch(function() { if (callback) callback(); });
+      .catch(function(){ if (callback) callback(); });
   }
 
   function handleUseBtn(name) {
     showToast('처리 중...');
-    apiPost({ action: 'setInUse', name: name })
-      .then(function() {
+    apiPost({action:'setInUse', name:name})
+      .then(function(){
         inUseSet.add(name);
         showToast('🔴 ' + name + ' 사용 시작!');
         if (activePopWindow) activePopWindow.close();
         refreshCurrentView();
       })
-      .catch(function() { showToast('처리 실패. 다시 시도해 주세요.'); });
+      .catch(function(){ showToast('처리 실패. 다시 시도해 주세요.'); });
   }
 
   function handleClearBtn(name) {
-    apiPost({ action: 'clearInUse', name: name })
-      .then(function() {
+    apiPost({action:'clearInUse', name:name})
+      .then(function(){
         inUseSet.delete(name);
         showToast('✅ ' + name + ' 사용 해제!');
         if (activePopWindow) activePopWindow.close();
         refreshCurrentView();
       })
-      .catch(function() { showToast('처리 실패. 다시 시도해 주세요.'); });
+      .catch(function(){ showToast('처리 실패. 다시 시도해 주세요.'); });
   }
 
   function refreshCurrentView() {
     if (!lastSearchData) return;
-    loadInUseStatus(function() {
+    loadInUseStatus(function(){
       if (lastSearchType === 'name') drawHydrantsByName(lastSearchData);
       else drawHydrants(lastSearchData);
     });
   }
 
-  // ── 팝업 내용 ──
   function makePopupContent(h, showDist) {
-    const shortAddr = h.addr.replace('인천광역시 ', '');
-    const isInUse = inUseSet.has(h.name);
-    const kakaoNavUrl = 'https://map.kakao.com/link/to/' + encodeURIComponent(h.name) + ',' + h.lat + ',' + h.lng;
-    const safeName = h.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-    const inUseBadge = isInUse ? '<div style="margin-bottom:6px"><span class="in-use-badge">⚠ 사용중</span></div>' : '';
-    const useBtn = isInUse
+    var shortAddr = h.addr.replace('인천광역시 ','');
+    var isInUse = inUseSet.has(h.name);
+    var kakaoNavUrl = 'https://map.kakao.com/link/to/' + encodeURIComponent(h.name) + ',' + h.lat + ',' + h.lng;
+    var safeName = h.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    var inUseBadge = isInUse ? '<div style="margin-bottom:6px"><span class="in-use-badge">⚠ 사용중</span></div>' : '';
+    var useBtn = isInUse
       ? '<button class="pop-use-btn clear" onclick="handleClearBtn(\'' + safeName + '\')">✅ 사용 해제</button>'
       : '<button class="pop-use-btn use" onclick="handleUseBtn(\'' + safeName + '\')">🚒 사용</button>';
     return '<div class="pop-window">' +
@@ -342,49 +305,37 @@
       '</div>';
   }
 
-  // ── 내 위치 마커 ──
   function createMyMarker(loc) {
     if (myMarker) myMarker.setMap(null);
     myMarker = new kakao.maps.Marker({
       map: map, position: loc, zIndex: 10,
-      image: new kakao.maps.MarkerImage(makeFireTruckSVG(), new kakao.maps.Size(52, 52), { offset: new kakao.maps.Point(26, 26) })
+      image: new kakao.maps.MarkerImage(makeFireTruckSVG(), new kakao.maps.Size(52,52), {offset: new kakao.maps.Point(26,26)})
     });
   }
 
-  function setLoading(on) { document.getElementById('loadingOverlay').classList.toggle('on', on); }
-
-  let toastTimer;
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg; t.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function() { t.classList.remove('show'); }, 2800);
-  }
-
-  // ── 검색 함수 ──
   function fetchNearby(lat, lng) {
     setLoading(true);
-    loadInUseStatus(function() {
-      apiGet({ action: 'nearby', lat: lat, lng: lng })
-        .then(function(data) { setLoading(false); drawHydrants(data); })
-        .catch(function() { setLoading(false); showToast('검색 실패. 다시 시도해 주세요.'); });
+    loadInUseStatus(function(){
+      apiGet({action:'nearby', lat:lat, lng:lng})
+        .then(function(data){ setLoading(false); drawHydrants(data); })
+        .catch(function(){ setLoading(false); showToast('검색 실패. 다시 시도해 주세요.'); });
     });
   }
 
   function searchAtCenter() {
     document.getElementById('btnReload').style.display = 'none';
-    const center = map.getCenter();
+    var center = map.getCenter();
     createMyMarker(center);
     if (activePopWindow) activePopWindow.close();
     fetchNearby(center.getLat(), center.getLng());
   }
 
   function searchAddress() {
-    const val = document.getElementById('searchAddr').value.trim();
+    var val = document.getElementById('searchAddr').value.trim();
     if (!val) return;
-    geocoder.addressSearch(val, function(result, status) {
+    geocoder.addressSearch(val, function(result, status){
       if (status !== kakao.maps.services.Status.OK) { showToast('주소를 찾지 못했습니다.'); return; }
-      const loc = new kakao.maps.LatLng(result[0].y, result[0].x);
+      var loc = new kakao.maps.LatLng(result[0].y, result[0].x);
       map.setCenter(loc); map.setLevel(3);
       document.getElementById('btnReload').style.display = 'none';
       if (activePopWindow) activePopWindow.close();
@@ -397,24 +348,24 @@
     if (!navigator.geolocation) { showToast('위치 기능을 지원하지 않습니다.'); return; }
     showToast('위치 확인 중...');
     navigator.geolocation.getCurrentPosition(
-      function(pos) {
-        const loc = new kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+      function(pos){
+        var loc = new kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
         map.setCenter(loc); map.setLevel(3);
         document.getElementById('btnReload').style.display = 'none';
         if (activePopWindow) activePopWindow.close();
         createMyMarker(loc);
         fetchNearby(pos.coords.latitude, pos.coords.longitude);
       },
-      function(err) {
-        const msgs = { 1: '위치 접근이 거부되었습니다.', 2: '위치를 확인할 수 없습니다.', 3: '위치 요청이 초과되었습니다.' };
-        showToast(msgs[err.code] || '위치 확인에 실패했습니다.');
+      function(err){
+        var msgs = {1:'위치 접근이 거부되었습니다.',2:'위치를 확인할 수 없습니다.',3:'위치 요청이 초과되었습니다.'};
+        showToast(msgs[err.code]||'위치 확인에 실패했습니다.');
       },
-      { timeout: 10000, maximumAge: 60000 }
+      {timeout:10000, maximumAge:60000}
     );
   }
 
   function switchTab(mode) {
-    const isAddr = mode === 'addr';
+    var isAddr = mode==='addr';
     document.getElementById('panelAddr').style.display = isAddr ? '' : 'none';
     document.getElementById('panelName').style.display = isAddr ? 'none' : '';
     document.getElementById('tabAddr').className = 'tab-btn' + (isAddr ? ' active' : '');
@@ -422,34 +373,33 @@
   }
 
   function searchByName() {
-    const keyword = document.getElementById('searchName').value.trim();
+    var keyword = document.getElementById('searchName').value.trim();
     if (!keyword) return;
     if (activePopWindow) activePopWindow.close();
     setLoading(true);
-    loadInUseStatus(function() {
-      apiGet({ action: 'searchByName', keyword: keyword })
-        .then(function(data) {
+    loadInUseStatus(function(){
+      apiGet({action:'searchByName', keyword:keyword})
+        .then(function(data){
           setLoading(false);
-          if (!data || data.length === 0) { showToast('"' + keyword + '" 명칭을 찾지 못했습니다.'); return; }
+          if (!data||data.length===0) { showToast('"'+keyword+'" 명칭을 찾지 못했습니다.'); return; }
           map.setCenter(new kakao.maps.LatLng(data[0].lat, data[0].lng));
           map.setLevel(4);
           document.getElementById('btnReload').style.display = 'none';
           drawHydrantsByName(data);
         })
-        .catch(function() { setLoading(false); showToast('검색 실패. 다시 시도해 주세요.'); });
+        .catch(function(){ setLoading(false); showToast('검색 실패. 다시 시도해 주세요.'); });
     });
   }
 
-  // ── 렌더링 ──
   function drawHydrants(list) {
     lastSearchData = list; lastSearchType = 'nearby';
-    markers.forEach(function(m) { m.setMap(null); }); markers = [];
-    const box = document.getElementById('h-list-result');
-    const countEl = document.getElementById('resultCount');
-    const legendEl = document.getElementById('legend');
+    markers.forEach(function(m){ m.setMap(null); }); markers = [];
+    var box = document.getElementById('h-list-result');
+    var countEl = document.getElementById('resultCount');
+    var legendEl = document.getElementById('legend');
     box.innerHTML = ''; legendEl.innerHTML = '';
 
-    if (!list || list.length === 0) {
+    if (!list||list.length===0) {
       countEl.innerHTML = '검색 결과 없음';
       box.innerHTML = '<div class="empty-state"><span class="material-icons">search_off</span>반경 1,000m 이내에<br>소방용수가 없습니다.</div>';
       return;
@@ -457,45 +407,47 @@
     countEl.innerHTML = '반경 1,000m 이내 <strong>' + list.length + '개</strong>';
 
     var usedAreas = [];
-    list.forEach(function(h) { var k = getAreaKey(h.area); if (k && usedAreas.indexOf(k) === -1) usedAreas.push(k); });
-    usedAreas.forEach(function(k) {
+    list.forEach(function(h){ var k=getAreaKey(h.area); if(k&&usedAreas.indexOf(k)===-1) usedAreas.push(k); });
+    usedAreas.forEach(function(k){
       var el = document.createElement('div'); el.className = 'legend-item';
-      el.innerHTML = '<div class="legend-dot" style="background:' + AREA_COLORS[k] + '"></div>' + (AREA_NAMES[k] || k);
+      el.innerHTML = '<div class="legend-dot" style="background:'+AREA_COLORS[k]+'"></div>'+(AREA_NAMES[k]||k);
       legendEl.appendChild(el);
     });
 
-    list.forEach(function(h) {
-      const isInUse = inUseSet.has(h.name);
-      const color = getAreaColor(h.area);
-      const areaKey = getAreaKey(h.area);
-      const position = new kakao.maps.LatLng(h.lat, h.lng);
-      const shortAddr = h.addr.replace('인천광역시 ', '');
-      const areaLabel = areaKey ? AREA_NAMES[areaKey] : '';
+    list.forEach(function(h){
+      var isInUse = inUseSet.has(h.name);
+      var color = getAreaColor(h.area);
+      var areaKey = getAreaKey(h.area);
+      var position = new kakao.maps.LatLng(h.lat, h.lng);
+      var shortAddr = h.addr.replace('인천광역시 ','');
+      var areaLabel = areaKey ? AREA_NAMES[areaKey] : '';
 
-      const marker = new kakao.maps.Marker({
-        map: map, position: position,
-        image: new kakao.maps.MarkerImage(makeHydrantSVG(color, areaKey || '', isInUse), new kakao.maps.Size(36, 44), { offset: new kakao.maps.Point(18, 44) })
+      var marker = new kakao.maps.Marker({
+        map:map, position:position,
+        image: new kakao.maps.MarkerImage(makeHydrantSVG(color, areaKey||'', isInUse), new kakao.maps.Size(36,44), {offset:new kakao.maps.Point(18,44)})
       });
       markers.push(marker);
 
-      const infowindow = new kakao.maps.InfoWindow({ content: makePopupContent(h, true) });
-      const openInfo = function() {
-        if (activePopWindow) activePopWindow.close();
-        infowindow.setContent(makePopupContent(h, true));
-        infowindow.open(map, marker);
-        activePopWindow = infowindow;
-        map.panTo(position);
-      };
+      var infowindow = new kakao.maps.InfoWindow({content: makePopupContent(h, true)});
+      var openInfo = (function(h, infowindow, marker){
+        return function(){
+          if (activePopWindow) activePopWindow.close();
+          infowindow.setContent(makePopupContent(h, true));
+          infowindow.open(map, marker);
+          activePopWindow = infowindow;
+          map.panTo(marker.getPosition());
+        };
+      })(h, infowindow, marker);
       kakao.maps.event.addListener(marker, 'click', openInfo);
 
-      const card = document.createElement('div');
+      var card = document.createElement('div');
       card.className = 'hydrant-card';
       card.style.borderColor = isInUse ? '#ffb74d' : '';
-      card.innerHTML = makeHydrantIconHTML(color, areaKey || '', isInUse) +
-        '<div class="h-info"><div class="h-name">' + h.name + (isInUse ? ' <span class="in-use-badge">⚠ 사용중</span>' : '') + '</div>' +
+      card.innerHTML = makeHydrantIconHTML(color, areaKey||'', isInUse) +
+        '<div class="h-info"><div class="h-name">' + h.name + (isInUse?' <span class="in-use-badge">⚠ 사용중</span>':'') + '</div>' +
         '<div class="h-meta">' + shortAddr + '<br>' +
-        '<span class="h-area-badge" style="background:' + color + '">' + (areaLabel || h.area) + '</span> ' + h.desc + '</div></div>' +
-        '<div class="h-dist">' + h.dist + 'm</div>';
+        '<span class="h-area-badge" style="background:'+color+'">'+(areaLabel||h.area)+'</span> '+h.desc+'</div></div>' +
+        '<div class="h-dist">'+h.dist+'m</div>';
       card.onclick = openInfo;
       box.appendChild(card);
     });
@@ -503,48 +455,57 @@
 
   function drawHydrantsByName(list) {
     lastSearchData = list; lastSearchType = 'name';
-    markers.forEach(function(m) { m.setMap(null); }); markers = [];
-    const box = document.getElementById('h-list-result');
-    const countEl = document.getElementById('resultCount');
-    const legendEl = document.getElementById('legend');
+    markers.forEach(function(m){ m.setMap(null); }); markers = [];
+    var box = document.getElementById('h-list-result');
+    var countEl = document.getElementById('resultCount');
+    var legendEl = document.getElementById('legend');
     box.innerHTML = ''; legendEl.innerHTML = '';
     countEl.innerHTML = '명칭 검색 결과 <strong>' + list.length + '개</strong>';
 
-    list.forEach(function(h) {
-      const isInUse = inUseSet.has(h.name);
-      const color = getAreaColor(h.area);
-      const areaKey = getAreaKey(h.area);
-      const position = new kakao.maps.LatLng(h.lat, h.lng);
-      const shortAddr = h.addr.replace('인천광역시 ', '');
-      const areaLabel = areaKey ? AREA_NAMES[areaKey] : '';
+    list.forEach(function(h){
+      var isInUse = inUseSet.has(h.name);
+      var color = getAreaColor(h.area);
+      var areaKey = getAreaKey(h.area);
+      var position = new kakao.maps.LatLng(h.lat, h.lng);
+      var shortAddr = h.addr.replace('인천광역시 ','');
+      var areaLabel = areaKey ? AREA_NAMES[areaKey] : '';
 
-      const marker = new kakao.maps.Marker({
-        map: map, position: position,
-        image: new kakao.maps.MarkerImage(makeHydrantSVG(color, areaKey || '', isInUse), new kakao.maps.Size(36, 44), { offset: new kakao.maps.Point(18, 44) })
+      var marker = new kakao.maps.Marker({
+        map:map, position:position,
+        image: new kakao.maps.MarkerImage(makeHydrantSVG(color, areaKey||'', isInUse), new kakao.maps.Size(36,44), {offset:new kakao.maps.Point(18,44)})
       });
       markers.push(marker);
 
-      const infowindow = new kakao.maps.InfoWindow({ content: makePopupContent(h, false) });
-      const openInfo = function() {
-        if (activePopWindow) activePopWindow.close();
-        infowindow.setContent(makePopupContent(h, false));
-        infowindow.open(map, marker);
-        activePopWindow = infowindow;
-        map.panTo(position);
-      };
+      var infowindow = new kakao.maps.InfoWindow({content: makePopupContent(h, false)});
+      var openInfo = (function(h, infowindow, marker){
+        return function(){
+          if (activePopWindow) activePopWindow.close();
+          infowindow.setContent(makePopupContent(h, false));
+          infowindow.open(map, marker);
+          activePopWindow = infowindow;
+          map.panTo(marker.getPosition());
+        };
+      })(h, infowindow, marker);
       kakao.maps.event.addListener(marker, 'click', openInfo);
 
-      const card = document.createElement('div');
+      var card = document.createElement('div');
       card.className = 'hydrant-card';
       card.style.borderColor = isInUse ? '#ffb74d' : '';
-      card.innerHTML = makeHydrantIconHTML(color, areaKey || '', isInUse) +
-        '<div class="h-info"><div class="h-name">' + h.name + (isInUse ? ' <span class="in-use-badge">⚠ 사용중</span>' : '') + '</div>' +
+      card.innerHTML = makeHydrantIconHTML(color, areaKey||'', isInUse) +
+        '<div class="h-info"><div class="h-name">' + h.name + (isInUse?' <span class="in-use-badge">⚠ 사용중</span>':'') + '</div>' +
         '<div class="h-meta">' + shortAddr + '<br>' +
-        '<span class="h-area-badge" style="background:' + color + '">' + (areaLabel || h.area) + '</span> ' + h.desc + '</div></div>';
+        '<span class="h-area-badge" style="background:'+color+'">'+(areaLabel||h.area)+'</span> '+h.desc+'</div></div>';
       card.onclick = openInfo;
       box.appendChild(card);
     });
   }
 </script>
+
+<!-- ★ 카카오맵 SDK: 맨 마지막에 로드 + onload로 initMap 호출 -->
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=716653ab472c2fadb371601567324b44&libraries=services&autoload=false"></script>
+<script type="text/javascript">
+  kakao.maps.load(initMap);
+</script>
+
 </body>
 </html>
