@@ -344,7 +344,14 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=716653ab472c2fadb371601567324b44&libraries=services&autoload=false"></script>
+<script>
+  function initKakaoMap() {
+    kakao.maps.load(function() {
+      initMap();
+    });
+  }
+</script>
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=716653ab472c2fadb371601567324b44&libraries=services&autoload=false&onload=initKakaoMap"></script>
 <script>
 
   // ★★★ 아래 URL을 본인 Apps Script 배포 URL로 교체하세요 ★★★
@@ -455,12 +462,6 @@
   let map, geocoder, myMarker, activePopWindow, markers = [];
   let lastSearchData = null, lastSearchType = null;
 
-  // 이걸로
-window.onload = function () {
-  kakao.maps.load(function() {
-    initMap();
-  });
-};
 
   function initMap() {
     if (typeof kakao === 'undefined' || !kakao.maps) {
