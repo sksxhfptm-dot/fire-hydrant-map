@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="소방용수">
-  <title>인천중부소방서 소방용수 위치도</title>
+  <meta name="apple-mobile-web-app-title" content="소화전을 찾아줘">
+  <title>소화전을 찾아줘</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
@@ -541,7 +541,7 @@
 <header>
   <div class="header-inner">
     <div class="header-icon" aria-hidden="true"><span class="material-icons">local_fire_department</span></div>
-    <h1>소방용수 위치도 <small>인천중부소방서</small></h1>
+    <h1>소화전을 찾아줘 <small>인천중부소방서</small></h1>
     <div class="header-spacer"></div>
     <div class="header-actions">
       <button id="btnTheme" class="btn-head" type="button" aria-label="테마 전환">
@@ -607,7 +607,7 @@
     </button>
     <div class="loading-overlay" id="loadingOverlay" aria-live="polite" aria-label="로딩" aria-busy="false">
       <div class="spinner" aria-hidden="true"></div>
-      <p>소방용수 검색 중...</p>
+      <p>소화전 검색 중...</p>
     </div>
   </section>
 
@@ -620,7 +620,7 @@
     <div id="h-list-result" role="list">
       <div class="empty-state" role="status">
         <span class="material-icons" aria-hidden="true">place</span>
-        주소 검색 또는 현위치 버튼을<br>눌러 주변 소방용수를 확인하세요
+        주소 검색 또는 현위치 버튼을<br>눌러 주변 소화전을 확인하세요
       </div>
     </div>
   </section>
@@ -1126,7 +1126,7 @@
       clearMarkers();
       els.legend.innerHTML = '';
       els.resultCount.innerHTML = '검색 결과 없음';
-      setEmptyState('search_off', '반경 1,000m 이내에<br>소방용수가 없습니다.');
+      setEmptyState('search_off', '반경 1,000m 이내에<br>소화전이 없습니다.');
       return;
     }
 
