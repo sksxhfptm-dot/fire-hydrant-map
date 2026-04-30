@@ -629,9 +629,78 @@
 
 <script>
 (() => {
-  const API_URL='https://script.google.com/macros/s/AKfycby3tISpouySVhMorJLrZTjlfLrcBJi0AVqZhS2N1B0QPTYzCyv2YXuX-qCjoj9W81Xl/exec';
+  // ── 데이터 소스: GitHub Pages의 data/hydrants.json ──
+  const DATA_URL = 'data/hydrants.json';
   const AREA_COLORS={'101':'#2563eb','102':'#dc2626','103':'#16a34a','104':'#9333ea','105':'#ea580c','106':'#0891b2','107':'#db2777','108':'#6b7280'};
   const AREA_NAMES={'101':'1구역','102':'2구역','103':'3구역','104':'4구역','105':'5구역','106':'6구역','107':'7구역','108':'8구역'};
+
+  // ── 소화전 데이터 (앱 시작 시 JSON에서 로드) ──────────
+  let HYDRANT_DATA = [];
+  async function initData() {
+    const res = await fetch(DATA_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    HYDRANT_DATA = await res.json();
+  }
+
+  // ── 거리 계산 (Haversine, 단위: m) ───────────────────
+  function calcDist(lat1, lon1, lat2, lon2) {
+    const R = 6371000;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) ** 2 +
+              Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
+              Math.sin(dLon/2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  // ── 주변 검색 (클라이언트, 1,000m 이내 최대 30개) ────
+  function getNearbyHydrants(lat, lng) {
+    return HYDRANT_DATA
+      .map(h => ({ ...h, dist: Math.round(calcDist(lat, lng, h.lat, h.lng)) }))
+      .filter(h => h.dist < 1000)
+      .sort((a, b) => a.dist - b.dist)
+      .slice(0, 30);
+  }
+
+  // ── 명칭 검색 (클라이언트) ────────────────────────────
+  function searchByNameLocal(keyword) {
+    const kw = keyword.trim().toLowerCase();
+    return HYDRANT_DATA
+      .filter(h => h.name.toLowerCase().includes(kw))
+      .slice(0, 30)
+      .map(h => ({ ...h, dist: 0 }));
+  }
+
+  // ── 사용현황 (localStorage) ───────────────────────────
+  // ⚠ 이 기기에서만 저장됩니다. 다른 기기와 공유하려면
+  //   별도 백엔드(Supabase 등)가 필요합니다.
+  const IN_USE_KEY = 'hydrant_in_use_v1';
+  const IN_USE_TTL = 60 * 60 * 1000; // 1시간
+
+  function _loadStore() {
+    try { return JSON.parse(localStorage.getItem(IN_USE_KEY) || '{}'); } catch { return {}; }
+  }
+  function _saveStore(data) { localStorage.setItem(IN_USE_KEY, JSON.stringify(data)); }
+
+  function getInUseSet() {
+    const data = _loadStore();
+    const now = Date.now();
+    let changed = false;
+    Object.keys(data).forEach(k => { if (data[k].expire < now) { delete data[k]; changed = true; } });
+    if (changed) _saveStore(data);
+    return new Set(Object.keys(data));
+  }
+  function setHydrantInUse(name) {
+    const data = _loadStore();
+    const now = Date.now();
+    data[name] = { since: now, expire: now + IN_USE_TTL };
+    _saveStore(data);
+  }
+  function clearHydrantInUse(name) {
+    const data = _loadStore();
+    delete data[name];
+    _saveStore(data);
+  }
 
   const $ = (id) => document.getElementById(id);
   const els = {
@@ -670,6 +739,7 @@
     lastData: null,
     lastType: null,
     mapReady: false,
+    dataReady: false,
     toastTimer: null,
     theme: null,
     markerImageCache: new Map(),
@@ -677,14 +747,8 @@
     serviceBounds: null,
     options: {
       excludeInUse: false,
-      inUseTtlMinutes: 30,
     },
   };
-
-  function apiGet(params){
-    const url = API_URL + '?' + new URLSearchParams(params);
-    return fetch(url, { cache: 'no-store' }).then((r) => r.json());
-  }
 
   function areaColor(area){
     const s = String(area || '');
@@ -761,44 +825,11 @@
     try{ localStorage.setItem('theme', next); }catch(_e){}
   }
 
-  async function loadInUse(){
-    try{
-      const list = await apiGet({ action:'getInUse' });
-      state.inUseFetchedAtMs = Date.now();
-      state.inUseMeta = new Map();
-
-      const ttlMs = state.options.inUseTtlMinutes * 60 * 1000;
-      let expiredCount = 0;
-
-      const names = [];
-      (list || []).forEach((h) => {
-        // Backward compat: could be {name} or a string
-        const name = (typeof h === 'string') ? h : h && h.name;
-        if (!name) return;
-
-        // Optional timestamp fields (if backend provides)
-        const updatedAtRaw = (typeof h === 'object' && h) ? (h.updatedAt || h.updated_at || h.ts || h.timestamp) : null;
-        const updatedAtMs = updatedAtRaw ? Date.parse(updatedAtRaw) : NaN;
-        if (!Number.isNaN(updatedAtMs)) state.inUseMeta.set(name, { updatedAtMs });
-
-        // Auto-expire only when timestamp exists
-        if (!Number.isNaN(updatedAtMs) && ttlMs > 0 && (state.inUseFetchedAtMs - updatedAtMs) > ttlMs){
-          expiredCount++;
-          return;
-        }
-        names.push(name);
-      });
-
-      state.inUseSet = new Set(names);
-
-      if (expiredCount > 0){
-        showToast('오래된 사용중 상태 ' + expiredCount + '개는 자동 제외됨');
-      }
-      updateInUseUpdatedLabel();
-    }catch(_e){
-      // ignore (offline / API failure)
-      updateInUseUpdatedLabel();
-    }
+  function loadInUse(){
+    state.inUseSet = getInUseSet();
+    state.inUseFetchedAtMs = Date.now();
+    state.inUseMeta = new Map();
+    updateInUseUpdatedLabel();
   }
 
   function updateInUseUpdatedLabel(){
@@ -840,34 +871,25 @@
     }
   }
 
-  async function handleUseBtn(name){
-    showToast('처리 중...');
-    try{
-      await apiGet({ action:'setInUse', name });
-      state.inUseSet.add(name);
-      showToast('🔴 ' + name + ' 사용 시작!');
-      if (state.activePopWindow) state.activePopWindow.close();
-      await refresh();
-    }catch(_e){
-      showToast('처리 실패.');
-    }
+  function handleUseBtn(name){
+    setHydrantInUse(name);
+    state.inUseSet.add(name);
+    showToast('🔴 ' + name + ' 사용 시작!');
+    if (state.activePopWindow) state.activePopWindow.close();
+    refresh();
   }
 
-  async function handleClearBtn(name){
-    try{
-      await apiGet({ action:'clearInUse', name });
-      state.inUseSet.delete(name);
-      showToast('✅ ' + name + ' 사용 해제!');
-      if (state.activePopWindow) state.activePopWindow.close();
-      await refresh();
-    }catch(_e){
-      showToast('처리 실패.');
-    }
+  function handleClearBtn(name){
+    clearHydrantInUse(name);
+    state.inUseSet.delete(name);
+    showToast('✅ ' + name + ' 사용 해제!');
+    if (state.activePopWindow) state.activePopWindow.close();
+    refresh();
   }
 
-  async function refresh(){
+  function refresh(){
     if(!state.lastData) return;
-    await loadInUse();
+    loadInUse();
     if(state.lastType === 'name') drawByName(state.lastData);
     else drawNearby(state.lastData);
   }
@@ -1152,22 +1174,18 @@
     renderListAndMarkers(list, false);
   }
 
-  async function fetchNearby(lat, lng){
+  function fetchNearby(lat, lng){
     if(!state.mapReady){ showToast('지도가 아직 로딩 중입니다.'); return; }
+    if(!state.dataReady){ showToast('데이터 로딩 중입니다. 잠시 후 다시 시도하세요.'); return; }
     if(state.serviceBounds && !state.serviceBounds.contain(new kakao.maps.LatLng(lat, lng))){
       showToast('서비스 지역(중구·동구·옹진군) 밖입니다.');
       return;
     }
     setLoading(true);
-    await loadInUse();
-    try{
-      const data = await apiGet({ action:'nearby', lat, lng });
-      setLoading(false);
-      drawNearby(data);
-    }catch(_e){
-      setLoading(false);
-      showToast('검색 실패.');
-    }
+    loadInUse();
+    const data = getNearbyHydrants(lat, lng);
+    setLoading(false);
+    drawNearby(data);
   }
 
   function searchAtCenter(){
@@ -1207,28 +1225,24 @@
 
   function searchByName(){
     if(!state.mapReady){ showToast('지도가 아직 로딩 중입니다.'); return; }
+    if(!state.dataReady){ showToast('데이터 로딩 중입니다. 잠시 후 다시 시도하세요.'); return; }
     const kw = els.searchName.value.trim();
     if(!kw) return;
     if(state.activePopWindow) state.activePopWindow.close();
     setLoading(true);
-    loadInUse().then(() => {
-      apiGet({ action:'searchByName', keyword: kw }).then((d) => {
-        setLoading(false);
-        if(!d || !d.length){ showToast('"' + kw + '" 명칭을 찾지 못했습니다.'); return; }
-        const first = new kakao.maps.LatLng(d[0].lat, d[0].lng);
-        if(state.serviceBounds && !state.serviceBounds.contain(first)){
-          showToast('서비스 지역(중구·동구·옹진군) 밖 결과입니다.');
-          return;
-        }
-        state.map.setCenter(first);
-        state.map.setLevel(4);
-        els.btnReload.style.display='none';
-        drawByName(d);
-      }).catch(() => {
-        setLoading(false);
-        showToast('검색 실패.');
-      });
-    });
+    loadInUse();
+    const d = searchByNameLocal(kw);
+    setLoading(false);
+    if(!d.length){ showToast('"' + kw + '" 명칭을 찾지 못했습니다.'); return; }
+    const first = new kakao.maps.LatLng(d[0].lat, d[0].lng);
+    if(state.serviceBounds && !state.serviceBounds.contain(first)){
+      showToast('서비스 지역(중구·동구·옹진군) 밖 결과입니다.');
+      return;
+    }
+    state.map.setCenter(first);
+    state.map.setLevel(4);
+    els.btnReload.style.display='none';
+    drawByName(d);
   }
 
   function getLocation(){
@@ -1331,7 +1345,7 @@
       kakao.maps.event.addListener(state.map,'zoom_changed',function(){ clampToBounds(); });
 
       state.mapReady = true;
-      loadInUse();
+      loadInUse(); // localStorage에서 즉시 로드
     }catch(e){
       console.error('카카오맵 초기화 실패:',e);
       showMapError();
@@ -1343,6 +1357,14 @@
   loadOptions();
   els.toggleExcludeInUse.checked = state.options.excludeInUse;
   updateInUseUpdatedLabel();
+
+  // 소화전 데이터 미리 로드 (구글 앱스스크립트 대신 JSON 파일)
+  initData()
+    .then(() => { state.dataReady = true; })
+    .catch((e) => {
+      console.error('소화전 데이터 로드 실패:', e);
+      showToast('데이터 로드 실패. 페이지를 새로고침 해주세요.');
+    });
 
   // Kakao SDK script tag에서 호출할 전역 훅
   window.showMapError = showMapError;
