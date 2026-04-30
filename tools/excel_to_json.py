@@ -4,17 +4,18 @@
 
 사용법:
   pip install openpyxl
-  python tools/excel_to_json.py 파일명.xlsx
+  python tools/excel_to_json.py 소방용수현황.xlsx
 
-컬럼 매핑 (0-indexed, 기존 Google Sheets 구조 기준):
-  B(1) = 명칭(name)
-  D(3) = 주소(addr)
+컬럼 매핑 (소방용수시설 세부 현황 파일 기준):
+  B(1) = 시설번호(name)
+  D(3) = 소재지도로명주소(addr)
   F(5) = 위도(lat)
   G(6) = 경도(lng)
   H(7) = 상세위치(desc)
-  J(9) = 용수구역(area)
+  I(8) = 안전센터명(center)
+  J(9) = 응수구역(area)
 
-컬럼 위치가 다르면 아래 COL_* 상수를 수정하세요.
+헤더: 1행(제목), 2행(빈행), 3행(컬럼명) → 데이터는 4행부터
 """
 import json
 import sys
@@ -26,12 +27,15 @@ except ImportError:
     print("openpyxl 패키지가 필요합니다: pip install openpyxl")
     sys.exit(1)
 
-COL_NAME = 1   # B열 (0-indexed)
-COL_ADDR = 3   # D열
-COL_LAT  = 5   # F열
-COL_LNG  = 6   # G열
-COL_DESC = 7   # H열
-COL_AREA = 9   # J열
+COL_NAME   = 1   # B열 (0-indexed)
+COL_ADDR   = 3   # D열
+COL_LAT    = 5   # F열
+COL_LNG    = 6   # G열
+COL_DESC   = 7   # H열
+COL_CENTER = 8   # I열
+COL_AREA   = 9   # J열
+
+HEADER_ROWS = 3  # 1행(제목) + 2행(빈행) + 3행(컬럼명)
 
 def convert(xlsx_path: str) -> None:
     wb = openpyxl.load_workbook(xlsx_path, read_only=True, data_only=True)
@@ -41,10 +45,10 @@ def convert(xlsx_path: str) -> None:
 
     data = []
     skipped = 0
-    for i, row in enumerate(rows[1:], start=2):  # 1행은 헤더
-        def cell(idx):
+    for i, row in enumerate(rows[HEADER_ROWS:], start=HEADER_ROWS + 1):
+        def cell(idx, r=row):
             try:
-                return row[idx]
+                return r[idx]
             except IndexError:
                 return None
 
@@ -56,12 +60,13 @@ def convert(xlsx_path: str) -> None:
             continue
 
         data.append({
-            "name": str(cell(COL_NAME) or "정보없음").strip(),
-            "addr": str(cell(COL_ADDR) or "정보없음").strip(),
-            "desc": str(cell(COL_DESC) or "").strip(),
-            "area": str(cell(COL_AREA) or "").strip(),
-            "lat":  lat,
-            "lng":  lng,
+            "name":   str(cell(COL_NAME)   or "정보없음").strip(),
+            "addr":   str(cell(COL_ADDR)   or "정보없음").strip(),
+            "desc":   str(cell(COL_DESC)   or "").strip(),
+            "center": str(cell(COL_CENTER) or "").strip(),
+            "area":   str(cell(COL_AREA)   or "").strip(),
+            "lat":    lat,
+            "lng":    lng,
         })
 
     out_path = Path(__file__).parent.parent / "data" / "hydrants.json"
