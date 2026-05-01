@@ -921,7 +921,6 @@
     const addr = String(h.addr || '').replace('인천광역시 ', '');
     const inUse = state.inUseSet.has(h.name);
     const nav = 'https://map.kakao.com/link/to/' + encodeURIComponent(h.name) + ',' + h.lat + ',' + h.lng;
-    const navNaver = 'https://map.naver.com/v5/directions//-/' + encodeURIComponent(h.name) + ',' + h.lng + ',' + h.lat + '/-/transit';
     const safeName = String(h.name || '').replace(/'/g, "\\'");
 
     const meta = state.inUseMeta.get(h.name);
@@ -944,7 +943,6 @@
         : '<button class="pop-use-btn use" type="button" onclick="window.__hydrant.use(\'' + safeName + '\')">🚒 사용</button>'
       ) +
       '<a class="pop-nav-btn" href="' + nav + '" target="_blank" rel="noopener noreferrer" style="margin-top:6px;">🧭 경로탐색 (카카오맵)</a>' +
-      '<a class="pop-nav-btn" href="' + navNaver + '" target="_blank" rel="noopener noreferrer" style="margin-top:6px;background:linear-gradient(135deg,#00C73C,#03C75A);">🗺️ 경로탐색 (네이버지도)</a>' +
       '</div>';
   }
 
