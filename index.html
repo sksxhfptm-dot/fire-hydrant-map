@@ -702,6 +702,8 @@
     markerImageCache: new Map(),
     myMarkerImage: null,
     serviceBounds: null,
+    clusterer: null,
+    autoGPSDone: false,
     options: { excludeInUse: false },
   };
 
@@ -729,6 +731,7 @@
   }
 
   function clearMarkers() {
+    if (state.clusterer) state.clusterer.clear();
     state.markers.forEach((m) => m.setMap(null));
     state.markers = [];
   }
@@ -955,7 +958,7 @@
       { offset: new kakao.maps.Point(18, 44) }
     );
     if (!cached) state.markerImageCache.set(cacheKey, image);
-    return new kakao.maps.Marker({ map: state.map, position: latLng, image });
+    return new kakao.maps.Marker({ position: latLng, image });
   }
 
   function createMyLocationMarker(latLng) {
@@ -1039,6 +1042,8 @@
     });
 
     els.list.appendChild(frag);
+
+    if (state.clusterer) state.clusterer.addMarkers(state.markers);
 
     const candidates = list
       .filter((h) => !state.inUseSet.has(h.name))
@@ -1246,12 +1251,39 @@
       kakao.maps.event.addListener(state.map, 'zoom_start', function () { if (state.activePopWindow) state.activePopWindow.close(); });
       kakao.maps.event.addListener(state.map, 'zoom_changed', function () { clampToBounds(); });
 
+      state.clusterer = new kakao.maps.MarkerClusterer({
+        map: state.map,
+        averageCenter: true,
+        minLevel: 6,
+        disableClickZoom: false,
+        styles: [{
+          width: '48px', height: '48px',
+          background: 'rgba(229,57,53,0.88)',
+          borderRadius: '50%',
+          color: '#fff',
+          textAlign: 'center',
+          lineHeight: '48px',
+          fontSize: '15px',
+          fontWeight: '700',
+          boxShadow: '0 3px 10px rgba(0,0,0,0.32)',
+          border: '2px solid rgba(255,255,255,0.7)'
+        }]
+      });
+
       state.mapReady = true;
       loadInUse();
+      tryAutoGPS();
     } catch (e) {
       console.error('카카오맵 초기화 실패:', e);
       showMapError();
     }
+  }
+
+  function tryAutoGPS() {
+    if (!state.mapReady || !state.dataReady) return;
+    if (state.autoGPSDone) return;
+    state.autoGPSDone = true;
+    getLocation();
   }
 
   bindUI();
@@ -1261,7 +1293,7 @@
   updateInUseUpdatedLabel();
 
   initData()
-    .then(() => { state.dataReady = true; })
+    .then(() => { state.dataReady = true; tryAutoGPS(); })
     .catch((e) => {
       console.error('소화전 데이터 로드 실패:', e);
       showToast('데이터 로드 실패. 페이지를 새로고침 해주세요.');
@@ -1283,7 +1315,7 @@
 </script>
 
 <!-- ★★★ 카카오맵 SDK ★★★ -->
-<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=716653ab472c2fadb371601567324b44&libraries=services&autoload=false"
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=716653ab472c2fadb371601567324b44&libraries=services,clusterer&autoload=false"
   onload="window.__kakaoSdkLoaded && window.__kakaoSdkLoaded()"
   onerror="window.showMapError && window.showMapError()"></script>
 </body>
